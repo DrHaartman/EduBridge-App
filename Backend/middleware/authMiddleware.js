@@ -42,4 +42,17 @@ const protect = asyncHandler(async (req, res, next) => {
     }
 });
 
-module.exports = { protect };
+const authorizeRoles = (...roles) => {
+    return (req, res, next) => {
+        // req.user is available here because the protect middleware ran first
+        if (!roles.includes(req.user.role)) {
+            res.status(403); // 403 Forbidden means logged in but not authorized
+            throw new Error(
+                `Forbidden: User role (${req.user.role}) is not authorized for this action.`
+            );
+        }
+        next(); // Role is authorized, proceed to the route handler
+    };
+};
+
+module.exports = { protect, authorizeRoles };

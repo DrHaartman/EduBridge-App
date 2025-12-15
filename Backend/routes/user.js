@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/userSchema'); 
 const generateToken = require('../utils/generateToken');
-const { protect } = require('../middleware/authMiddleware'); // For authentication
+const { getAllUsers } = require('../controllers/userController');
+const { protect, authorizeRoles } = require('../middleware/authMiddleware'); // For authentication
 const { authorize } = require('../middleware/roleMiddleware'); // for role placement
 
 
@@ -257,5 +258,9 @@ router.delete('/:id', protect, authorize('admin', 'instructor'), async (req, res
         res.status(500).json({ message: 'Server Error during user deletion.' });
     }
 });
+
+// New Route: GET /api/users (Requires Instructor/Admin role)
+router.get('/', protect, authorizeRoles('admin', 'instructor'), getAllUsers); 
+
 
 module.exports = router;
